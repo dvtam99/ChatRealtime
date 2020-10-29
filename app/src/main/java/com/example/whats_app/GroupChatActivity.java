@@ -1,8 +1,5 @@
 package com.example.whats_app;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -11,6 +8,9 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -40,11 +40,9 @@ public class GroupChatActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_chat);
-
 
 
         currentGroupName = getIntent().getExtras().get("groupName").toString();
@@ -57,7 +55,6 @@ public class GroupChatActivity extends AppCompatActivity {
         GroupNameRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(currentGroupName);
 
 
-
         InitializeFields();
 
 
@@ -66,8 +63,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
         SendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 SaveMessageInfoToDatabase();
 
                 userMessageInput.setText("");
@@ -78,27 +74,21 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
 
-
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         super.onStart();
 
         GroupNameRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s)
-            {
-                if (dataSnapshot.exists())
-                {
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                if (dataSnapshot.exists()) {
                     DisplayMessages(dataSnapshot);
                 }
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s)
-            {
-                if (dataSnapshot.exists())
-                {
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                if (dataSnapshot.exists()) {
                     DisplayMessages(dataSnapshot);
                 }
             }
@@ -121,8 +111,7 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
 
-    private void InitializeFields()
-    {
+    private void InitializeFields() {
         mToolbar = (Toolbar) findViewById(R.id.group_chat_bar_layout);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle(currentGroupName);
@@ -134,40 +123,29 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
 
-
-    private void GetUserInfo()
-    {
+    private void GetUserInfo() {
         UsersRef.child(currentUserID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                if (dataSnapshot.exists())
-                {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
                     currentUserName = dataSnapshot.child("name").getValue().toString();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
 
 
-
-
-    private void SaveMessageInfoToDatabase()
-    {
+    private void SaveMessageInfoToDatabase() {
         String message = userMessageInput.getText().toString();
         String messagekEY = GroupNameRef.push().getKey();
 
-        if (TextUtils.isEmpty(message))
-        {
+        if (TextUtils.isEmpty(message)) {
             Toast.makeText(this, "Please write message first...", Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
+        } else {
             Calendar calForDate = Calendar.getInstance();
             SimpleDateFormat currentDateFormat = new SimpleDateFormat("MMM dd, yyyy");
             currentDate = currentDateFormat.format(calForDate.getTime());
@@ -192,17 +170,14 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
 
-
-    private void DisplayMessages(DataSnapshot dataSnapshot)
-    {
+    private void DisplayMessages(DataSnapshot dataSnapshot) {
         Iterator iterator = dataSnapshot.getChildren().iterator();
 
-        while(iterator.hasNext())
-        {
-            String chatDate = (String) ((DataSnapshot)iterator.next()).getValue();
-            String chatMessage = (String) ((DataSnapshot)iterator.next()).getValue();
-            String chatName = (String) ((DataSnapshot)iterator.next()).getValue();
-            String chatTime = (String) ((DataSnapshot)iterator.next()).getValue();
+        while (iterator.hasNext()) {
+            String chatDate = (String) ((DataSnapshot) iterator.next()).getValue();
+            String chatMessage = (String) ((DataSnapshot) iterator.next()).getValue();
+            String chatName = (String) ((DataSnapshot) iterator.next()).getValue();
+            String chatTime = (String) ((DataSnapshot) iterator.next()).getValue();
 
             displayTextMessages.append(chatName + " :\n" + chatMessage + "\n" + chatTime + "     " + chatDate + "\n\n\n");
 
