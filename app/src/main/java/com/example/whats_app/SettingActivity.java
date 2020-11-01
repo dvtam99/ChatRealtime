@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -84,7 +86,9 @@ public class SettingActivity extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if ((dataSnapshot.exists()) && (dataSnapshot.hasChild("name") && (dataSnapshot.hasChild("image")))) {
+                        if ((dataSnapshot.exists())
+                                && (dataSnapshot.hasChild("name")
+                                && (dataSnapshot.hasChild("image")))) {
                             String retrieveUserName = dataSnapshot.child("name").getValue().toString();
                             String retrievesStatus = dataSnapshot.child("status").getValue().toString();
                             String retrieveProfileImage = dataSnapshot.child("image").getValue().toString();
@@ -100,7 +104,9 @@ public class SettingActivity extends AppCompatActivity {
                             userStatus.setText(retrievesStatus);
                         } else {
                             username.setVisibility(View.VISIBLE);
-                            Toast.makeText(SettingActivity.this, "Please set & update your profile information...", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SettingActivity.this,
+                                    "Please set & update your profile information...",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -109,6 +115,11 @@ public class SettingActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        SendUserToMainActivity();
     }
 
     @Override
@@ -131,41 +142,54 @@ public class SettingActivity extends AppCompatActivity {
 
                 progressDialog.setTitle("Set Profile image");
                 progressDialog.setMessage("Please wait");
-                progressDialog.setCanceledOnTouchOutside(true);
+                progressDialog.setCanceledOnTouchOutside(false);
                 progressDialog.show();
 
                 Uri resultUri = result.getUri();
 
                 StorageReference filePath = userProfileImageReference.child(currentUserId + ".jpg");
-                filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+
+                final UploadTask uploadTask = filePath.putFile(resultUri);
+
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(SettingActivity.this, "Upload Successfully", Toast.LENGTH_SHORT).show();
-
-                            final String downloadedUrl = task.getResult().getStorage().getDownloadUrl().toString();
-                            rootRef.child("Users").child(currentUserId).child("image").setValue(downloadedUrl).
-                                    addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if(task.isSuccessful()){
-                                                Toast.makeText(SettingActivity.this, "Image save in database, Successfully", Toast.LENGTH_SHORT).show();
-
-                                            }else {
-                                                String msg = task.getException().toString();
-                                                Toast.makeText(SettingActivity.this, "Error: " + msg, Toast.LENGTH_SHORT).show();
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String download_url = uri.toString();
+                                rootRef.child("Users").child(currentUserId).child("image")
+                                        .setValue(download_url)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(SettingActivity.this,
+                                                            "Image save in database, Successfully",
+                                                            Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    String msg = task.getException().toString();
+                                                    Toast.makeText(SettingActivity.this,
+                                                            "Error: " + msg,
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
+                                                progressDialog.dismiss();
                                             }
-                                            progressDialog.dismiss();
-                                        }
-                                    });
-                        } else {
-                            String msg = task.getException().toString();
-                            Toast.makeText(SettingActivity.this, "Error: " + msg, Toast.LENGTH_SHORT).show();
-                            progressDialog.dismiss();
-
-                        }
+                                        });
+                            }
+                        });
                     }
                 });
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        String msg = e.toString();
+                        Toast.makeText(SettingActivity.this,
+                                "Error: " + msg, Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                    }
+                });
+
             }
         }
     }
