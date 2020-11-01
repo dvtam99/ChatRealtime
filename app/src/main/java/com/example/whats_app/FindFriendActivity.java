@@ -1,5 +1,6 @@
 package com.example.whats_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +21,7 @@ import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class Find_Friend_Activity extends AppCompatActivity {
+public class FindFriendActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private RecyclerView findFriendsRecyclerList;
     private DatabaseReference userRef;
@@ -55,11 +56,23 @@ public class Find_Friend_Activity extends AppCompatActivity {
         FirebaseRecyclerAdapter<Contacts, FindFriendViewHolder> adapter =
                 new FirebaseRecyclerAdapter<Contacts, FindFriendViewHolder>(options) {
                     @Override
-                    protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, int position, @NonNull Contacts model) {
+                    protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, final int position, @NonNull Contacts model) {
 
                         holder.userName.setText(model.getName());
                         holder.userStatus.setText(model.getStatus());
                         Picasso.get().load(model.getImage()).into(holder.proCircleImageView);
+
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String visitUserId= getRef(position).getKey();
+
+                                Intent profileIntent =
+                                        new Intent(FindFriendActivity.this,  ProfileActivity.class);
+                                profileIntent.putExtra("visitUserId", visitUserId);
+                                startActivity(profileIntent);
+                            }
+                        });
                     }
 
                     @NonNull
