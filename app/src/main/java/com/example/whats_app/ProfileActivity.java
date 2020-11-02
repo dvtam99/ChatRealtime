@@ -25,7 +25,7 @@ public class ProfileActivity extends AppCompatActivity {
     private String receiverUserId, currentState, senderUserId;
     private CircleImageView userProfileImageView;
     private TextView userProfileName, userProfileStatus;
-    private Button sendRequestMessage;
+    private Button sendRequestMessage, declineRequest;
 
     private DatabaseReference userRef, chatRequestRef;
     private FirebaseAuth mAuth;
@@ -46,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
         userProfileName = (TextView) findViewById(R.id.visit_profile_username);
         userProfileStatus = (TextView) findViewById(R.id.visit_profile_status);
         sendRequestMessage = findViewById(R.id.send_request_button);
+        declineRequest = findViewById(R.id.decline_request_button);
         currentState = "new";
         RetrieveUserInfo();
     }
@@ -93,6 +94,18 @@ public class ProfileActivity extends AppCompatActivity {
                             if (requestType.equals("sent")) {
                                 currentState = "request_sent";
                                 sendRequestMessage.setText("Cancel chat request");
+                            } else if (requestType.equals("received")) {
+                                currentState = "request_received";
+                                sendRequestMessage.setText("Accept Chat");
+                                declineRequest.setVisibility(View.VISIBLE);
+                                declineRequest.setEnabled(true);
+
+                                declineRequest.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        CancelChatRequest();
+                                    }
+                                });
                             }
                         }
                     }
@@ -112,7 +125,7 @@ public class ProfileActivity extends AppCompatActivity {
                         SenChatRequest();
                     }
                     if (currentState.equals("request_sent")) {
-                        CancelChatRequset();
+                        CancelChatRequest();
 
                     }
                 }
@@ -122,7 +135,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void CancelChatRequset() {
+    private void CancelChatRequest() {
         chatRequestRef.child(senderUserId).child(receiverUserId)
                 .removeValue()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -138,6 +151,8 @@ public class ProfileActivity extends AppCompatActivity {
                                                 sendRequestMessage.setEnabled(true);
                                                 currentState = "new";
                                                 sendRequestMessage.setText("Send message");
+                                                declineRequest.setVisibility(View.INVISIBLE);
+                                                declineRequest.setEnabled(false);
                                             }
                                         }
                                     });
@@ -166,6 +181,8 @@ public class ProfileActivity extends AppCompatActivity {
                                                 sendRequestMessage.setEnabled(true);
                                                 currentState = "request_sent";
                                                 sendRequestMessage.setText("Cancel chat");
+
+
                                             }
                                         }
                                     });
