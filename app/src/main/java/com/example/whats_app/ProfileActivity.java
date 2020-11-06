@@ -27,7 +27,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView userProfileName, userProfileStatus;
     private Button sendRequestMessage, declineRequest;
 
-    private DatabaseReference userRef, chatRequestRef;
+    private DatabaseReference userRef, chatRequestRef, contactRef;
     private FirebaseAuth mAuth;
 
     @Override
@@ -38,6 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
         chatRequestRef = FirebaseDatabase.getInstance().getReference().child("Chat Request");
+        contactRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
 
         receiverUserId = getIntent().getExtras().get("visitUserId").toString();
         senderUserId = mAuth.getCurrentUser().getUid();
@@ -108,7 +109,25 @@ public class ProfileActivity extends AppCompatActivity {
                                 });
                             }
                         }
+                        else {
+                            contactRef.child(senderUserId)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            if(snapshot.hasChild(receiverUserId)){
+                                                currentState= "friend";
+                                                sendRequestMessage.setText("Remove this contact");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+                        }
                     }
+
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
@@ -126,13 +145,95 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                     if (currentState.equals("request_sent")) {
                         CancelChatRequest();
-
+                    }
+                    if (currentState.equals("request_received")) {
+                        AcceptChatRequest();
+                    }
+                    if (currentState.equals("friend")) {
+                        RemoveContact();
                     }
                 }
             });
         } else {
             sendRequestMessage.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void RemoveContact() {
+        contactRef.child(senderUserId).child(receiverUserId)
+                .removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            contactRef.child(receiverUserId).child(senderUserId)
+                                    .removeValue()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                sendRequestMessage.setEnabled(true);
+                                                currentState = "new";
+                                                sendRequestMessage.setText("Send message");
+                                                declineRequest.setVisibility(View.INVISIBLE);
+                                                declineRequest.setEnabled(false);
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
+
+    private void AcceptChatRequest() {
+
+        contactRef.child(senderUserId)
+                .child(receiverUserId)
+                .child("Contacts")
+                .setValue("Saved")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            contactRef.child(receiverUserId)
+                                    .child(senderUserId)
+                                    .child("Contacts")
+                                    .setValue("Saved")
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()){
+                                                chatRequestRef.child(senderUserId)
+                                                        .child(receiverUserId)
+                                                        .removeValue()
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+
+                                                                chatRequestRef.child(receiverUserId)
+                                                                        .child(senderUserId)
+                                                                        .removeValue()
+                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<Void> task) {
+
+                                                                                sendRequestMessage.setEnabled(true);
+                                                                                currentState="friend";
+                                                                                sendRequestMessage.setText("Remove this contact");
+                                                                                declineRequest.setVisibility(View.INVISIBLE);
+                                                                                declineRequest.setEnabled(false);
+                                                                            }
+                                                                        });
+                                                            }
+                                                        });
+
+                                            }
+                                        }
+                                    });
+
+                        }
+                    }
+                });
     }
 
     private void CancelChatRequest() {
