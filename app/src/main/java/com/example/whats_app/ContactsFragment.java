@@ -77,9 +77,6 @@ public class ContactsFragment extends Fragment {
                 UserRef.child(userIDs).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.getValue() == null) {
-                            return;
-                        }
                         if (snapshot.hasChild("image")) {
                             String userImage = snapshot.child("image").getValue().toString();
                             Picasso.get().load(userImage).placeholder(R.drawable.profile_image).into(holder.profileImage);
