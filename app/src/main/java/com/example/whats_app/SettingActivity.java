@@ -241,4 +241,9 @@ public class SettingActivity extends AppCompatActivity {
         startActivity(mainIntent);
         finish();
     }*/
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
 }

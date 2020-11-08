@@ -143,11 +143,11 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    @Override
+    /*@Override
     public void onBackPressed() {
 
 
-    }
+    }*/
 
     private void CreateNewGroup(String groupName) {
         rootRef.child("Groups").child(groupName).setValue("").

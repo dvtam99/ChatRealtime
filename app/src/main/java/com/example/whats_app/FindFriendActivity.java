@@ -66,10 +66,10 @@ public class FindFriendActivity extends AppCompatActivity {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String visitUserId= getRef(position).getKey();
+                                String visitUserId = getRef(position).getKey();
 
                                 Intent profileIntent =
-                                        new Intent(FindFriendActivity.this,  ProfileActivity.class);
+                                        new Intent(FindFriendActivity.this, ProfileActivity.class);
                                 profileIntent.putExtra("visitUserId", visitUserId);
                                 startActivity(profileIntent);
                             }
@@ -98,5 +98,11 @@ public class FindFriendActivity extends AppCompatActivity {
             userStatus = itemView.findViewById(R.id.user_profile_status);
             proCircleImageView = itemView.findViewById(R.id.users_profile_image);
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }
