@@ -108,14 +108,13 @@ public class ProfileActivity extends AppCompatActivity {
                                     }
                                 });
                             }
-                        }
-                        else {
+                        } else {
                             contactRef.child(senderUserId)
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            if(snapshot.hasChild(receiverUserId)){
-                                                currentState= "friend";
+                                            if (snapshot.hasChild(receiverUserId)) {
+                                                currentState = "friend";
                                                 sendRequestMessage.setText("Remove this contact");
                                             }
                                         }
@@ -194,7 +193,7 @@ public class ProfileActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             contactRef.child(receiverUserId)
                                     .child(senderUserId)
                                     .child("Contacts")
@@ -202,7 +201,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-                                            if(task.isSuccessful()){
+                                            if (task.isSuccessful()) {
                                                 chatRequestRef.child(senderUserId)
                                                         .child(receiverUserId)
                                                         .removeValue()
@@ -218,7 +217,7 @@ public class ProfileActivity extends AppCompatActivity {
                                                                             public void onComplete(@NonNull Task<Void> task) {
 
                                                                                 sendRequestMessage.setEnabled(true);
-                                                                                currentState="friend";
+                                                                                currentState = "friend";
                                                                                 sendRequestMessage.setText("Remove this contact");
                                                                                 declineRequest.setVisibility(View.INVISIBLE);
                                                                                 declineRequest.setEnabled(false);
@@ -281,9 +280,7 @@ public class ProfileActivity extends AppCompatActivity {
                                             if (task.isSuccessful()) {
                                                 sendRequestMessage.setEnabled(true);
                                                 currentState = "request_sent";
-                                                sendRequestMessage.setText("Cancel chat");
-
-
+                                                sendRequestMessage.setText("Cancel chat request");
                                             }
                                         }
                                     });
