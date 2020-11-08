@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +34,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -47,6 +50,8 @@ public class SettingActivity extends AppCompatActivity {
     private StorageReference userProfileImageReference;
     private ProgressDialog progressDialog;
 
+    private Toolbar SettingToolbar;
+
     private final int GalleryPick = 1;
 
     @Override
@@ -60,7 +65,7 @@ public class SettingActivity extends AppCompatActivity {
         userProfileImageReference = FirebaseStorage.getInstance().getReference().child("Profile Images");
 
         InitializeFields();
-        username.setVisibility(View.INVISIBLE);
+        //username.setVisibility(View.INVISIBLE);
 
         updateAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,11 +123,6 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        SendUserToMainActivity();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -141,7 +141,7 @@ public class SettingActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 progressDialog.setTitle("Set Profile image");
-                progressDialog.setMessage("Please wait");
+                //progressDialog.setMessage("Please wait");
                 progressDialog.setCanceledOnTouchOutside(false);
                 progressDialog.show();
 
@@ -200,16 +200,16 @@ public class SettingActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(setUsername) || TextUtils.isEmpty(setStatus)) {
             Toast.makeText(this, "Enter data", Toast.LENGTH_SHORT).show();
         } else {
-            HashMap<String, String> profileMap = new HashMap<>();
+            HashMap<String, Object> profileMap = new HashMap<>();
             profileMap.put("uid", currentUserId);
             profileMap.put("name", setUsername);
             profileMap.put("status", setStatus);
-            rootRef.child("Users").child(currentUserId).setValue(profileMap).
+            rootRef.child("Users").child(currentUserId).updateChildren(profileMap).
                     addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                SendUserToMainActivity();
+                                //SendUserToMainActivity();
                                 Toast.makeText(SettingActivity.this, "Successfully", Toast.LENGTH_SHORT).show();
                             } else {
                                 String msg = task.getException().toString();
@@ -227,12 +227,23 @@ public class SettingActivity extends AppCompatActivity {
         userStatus = findViewById(R.id.set_profile_status);
         userProfileImage = findViewById(R.id.set_profile_image);
         progressDialog = new ProgressDialog(this);
+
+        SettingToolbar = (Toolbar) findViewById(R.id.settings_toolbar);
+        setSupportActionBar(SettingToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setTitle("Account Settings");
     }
 
-    private void SendUserToMainActivity() {
+    /*private void SendUserToMainActivity() {
         Intent mainIntent = new Intent(this, MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(mainIntent);
         finish();
+    }*/
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }

@@ -63,7 +63,6 @@ public class RegisterActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){
-
                                 String currentUserId = mAuth.getCurrentUser().getUid();
                                 rooRef.child("Users").child(currentUserId).setValue("");
                                 SendUserToMainActivity();
