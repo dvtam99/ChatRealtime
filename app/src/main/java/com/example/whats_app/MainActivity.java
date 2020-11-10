@@ -142,20 +142,20 @@ public class MainActivity extends AppCompatActivity {
         });
         builder.show();
     }
-    @Override
+
+    /*@Override
     public void onBackPressed() {
 
 
+    }*/
 
-
-    }
     private void CreateNewGroup(String groupName) {
         rootRef.child("Groups").child(groupName).setValue("").
                 addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Toast.makeText(MainActivity.this, "Create Group successfully", Toast.LENGTH_SHORT).show();
 
                         }
@@ -164,18 +164,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SendUserToLogin() {
-        Intent loginIntent = new Intent(this, LoginActivity.class);
+        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginIntent);
-        finish();
     }
 
     private void SendUserToSettingActivity() {
         Intent settingIntent = new Intent(this, SettingActivity.class);
-        settingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(settingIntent);
-        finish();
     }
+
     private void SendUserToFindFriendsActivity() {
         Intent findFriendIntent = new Intent(this, FindFriendActivity.class);
         startActivity(findFriendIntent);
