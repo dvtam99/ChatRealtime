@@ -122,6 +122,7 @@ public class ChatActivity extends AppCompatActivity {
                         Messages messages = snapshot.getValue(Messages.class);
 
                         messagesList.add(messages);
+                        userMessagesList.smoothScrollToPosition(messagesList.size());
                         messageAdapter.notifyDataSetChanged();
                     }
 
@@ -176,13 +177,16 @@ public class ChatActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task task) {
                     if(task.isSuccessful())
                     {
-                        Toast.makeText(ChatActivity.this, "Message ssent Successfully",Toast.LENGTH_SHORT);
+                        MessageInputText.setText("");
+                        Toast.makeText(ChatActivity.this, "Message sent Successfully",Toast.LENGTH_SHORT);
                     }
                     else{
                         Toast.makeText(ChatActivity.this,"Error",Toast.LENGTH_SHORT);
                     }
                 }
             });
+            userMessagesList.smoothScrollToPosition(userMessagesList.getAdapter().getItemCount()-1);
+            messageAdapter.notifyDataSetChanged();
         }
     }
 }
